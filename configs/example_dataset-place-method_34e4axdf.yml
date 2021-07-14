@@ -1,0 +1,28 @@
+email: bdbest@gmail.com
+date: 2021-05-25 19:11:49 UTC
+title: Primary Production of EEZs
+dateset:
+- type: erddap
+- server: https://https://coastwatch.pfeg.noaa.gov/erddap
+- variable: chl-a
+- subset:
+  - time: > 2020-01-01
+place:
+- wkt: POLYGON(...)
+method:
+# - function: ed_mean()
+# - package: marinebon/mbon_tools
+# - version: 0.83
+- function: get_ss_grds()
+- file: https://github.com/marinebon/seascapeR/blob/e533994856a5f6b691891ebcd32ba73d5cddd968/R/read.R
+- arguments:
+  - type: "mean"
+result:
+# - type: csv
+# - type: geojson
+# - type: gridded: WMS? ERDDAP dataset?
+- type: json
+# outputs to: https://api.marinebon.org/results/34e4axdf.csv
+
+# what if multiple datasets? build out api for each input, then have another summarization method
+

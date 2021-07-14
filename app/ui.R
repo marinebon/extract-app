@@ -1,4 +1,9 @@
-library(shiny)
+library(librarian)
+shelf(DT, rerddap, shiny)
+
+ed_servers <- c(
+  "CoastWatch" = "https://coastwatch.pfeg.noaa.gov/erddap",
+  "OceanView"  = "https://oceanview.pfeg.noaa.gov/erddap")
 
 shinyUI(fluidPage(
   titlePanel("Extraction"),
@@ -13,12 +18,19 @@ shinyUI(fluidPage(
             id = "tabs_dataset", type = "tabs",
             tabPanel(
               "ERDDAP",
+              selectInput(
+                "sel_ed", "Server", ed_servers),
               tabsetPanel(
                 id = "tabs_erddap", type = "tabs",
                 tabPanel(
-                  "Gridded"),
+                  "Gridded",
+                  DTOutput("tbl_ed_grd")),
                 tabPanel(
-                  "Tabular")))),
+                  "Tabular"))),
+            tabPanel(
+              "OBIS"),
+            tabPanel(
+              "DataOne")),
             tabPanel(
               "OBIS"),
             tabPanel(
