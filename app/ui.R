@@ -1,10 +1,3 @@
-library(librarian)
-shelf(DT, rerddap, shiny)
-
-ed_servers <- c(
-  "CoastWatch" = "https://coastwatch.pfeg.noaa.gov/erddap",
-  "OceanView"  = "https://oceanview.pfeg.noaa.gov/erddap")
-
 shinyUI(fluidPage(
   titlePanel("Extraction"),
   fluidRow(

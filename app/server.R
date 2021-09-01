@@ -6,10 +6,11 @@ shinyServer(function(input, output) {
   })
   
   output$tbl_ed_grd <- renderDT({
-    # input <- list(sel_ed = "https://coastwatch.pfeg.noaa.gov/erddap")
-    
-    #rerd
-    input$sel_ed
-    
-  })
+    ds_ed %>% 
+      mutate(
+        Dataset = Title,
+        ERDDAP  = glue("<a href='{griddap}' target='_blank'>{Dataset.ID}</a>")) %>% 
+      select(ERDDAP, Dataset) %>% 
+      arrange(ERDDAP, Dataset)
+  }, escape = F)
 })
