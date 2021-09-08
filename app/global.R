@@ -82,24 +82,23 @@ get_ed_datasets <- function(
     arrange(server, ERDDAP) # nrow: 11,448 -> 10,430
 }
 
-map_ed <- function(id, datasets = ds_ed){
-  id <- "jplMURSST41mday"
-  d <- datasets %>% filter(Dataset.ID == id) # )
-  var <- "sst"
+map_ed <- function(id, var, datasets = ds_ed){
+  # id = "jplMURSST41mday"; var = "sst"
+  d <- datasets %>% filter(Dataset.ID == id)
   
   leaflet(
     options = leafletOptions(
       crs = leafletCRS(crsClass = "L.CRS.EPSG4326"))) %>%
     # basemap from GBIF in 4326
     addTiles("//tile.gbif.org/4326/omt/{z}/{x}/{y}@1x.png?style=gbif-geyser") %>%
-    # sst
+    # ERDDAP WMS
     addWMSTiles(
       baseUrl = glue("{d$wms}?"),
       layers = glue("{id}:{var}"),
       options = WMSTileOptions(
-        version = "1.3.0", format = "image/png", transparent = T, opacity = 0.7)) # styles = "" # ))  %>%
+        version = "1.3.0", format = "image/png", transparent = T, opacity = 0.7)) # styles = ""
         # time = '2021-07-16T00:00:00Z')) # format(date_end,"%Y-%m-%dT00:00:00Z"))) %>% # defaults to most recent
-    #addMouseCoordinates() %>%
+    # TODO: add legend
     # leaflet::addLegend(
     #   position="bottomright",
     #   title = paste0("SST (°C)"),
@@ -109,16 +108,3 @@ map_ed <- function(id, datasets = ds_ed){
 
 # get data ----
 ds_ed <- get_ed_datasets()
-
-# d_id <- "jplMURSST41mday"
-# d_url <- ds_ed %>% 
-#   filter(Dataset.ID == d_id) %>% 
-#   pull(ed_url)
-# "https://coastwatch.pfeg.noaa.gov/erddap/"
-# d_info <- rerddap::info(d_id) # , url = d_url)
-
-# d_info$variables %>% 
-#   filter(data_type  == "float") %>% 
-#   pull(variable_name) %>% 
-#   .[[1]]
-
