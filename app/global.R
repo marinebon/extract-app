@@ -37,41 +37,12 @@ get_ed_datasets <- function(
       mutate(
         ds = map(url, ~ rerddap::ed_datasets(url = .x, which = type))) %>% 
       unnest(ds) %>% 
-    
-    # nrow(ds): 9,722 # View(ds)
-    #ds %>% 
       mutate(
         Summary = Summary %>% 
           str_replace_all("\n\n", "\n") %>% 
           str_replace_all("\n", ". ")) %>% 
       write_csv(ds_csv) # , quote = "all") # , escape="backslash", eol="\r\n")
   }
-  
-  # ds3_csv  <- path_ext_set(ds_csv, "_test-info.csv")
-  # ds3_json <- path_ext_set(ds_csv, "_test-info.json")
-  # ds3 <- read_csv(ds_csv) %>% 
-  #   slice(1:3) %>% 
-  #   mutate(
-  #     info = map2(Dataset.ID, url, ~ rerddap::info(.x, url = .y)))
- 
-  #ds3 %>% select(ds3$Dataset.ID[1], url)
-  
-  # y_info <- rerddap::info(ds3$Dataset.ID[1], url = ds3$url[1])
-  # y_info$alldata %>% names() tibble()
-  
-  # write_csv(ds3, ds3_csv)
-  # shelf(jsonlite)
-  # write_json(ds3, ds3_json)
-  # file_exists(ds3_json)
-  # ds3r <- jsonlite::read_json(ds3_json)
-  # ds3 <- read_csv(ds3_csv)
-  # 
-  #     d_info$variables %>% 
-  #       filter(data_type  == "float") %>% 
-  #       pull(variable_name) %>% 
-  #       .[[1]]
-  #   )
-  # nrow(ds2)
   
   read_csv(ds_csv) %>% 
     mutate(
