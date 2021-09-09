@@ -31,13 +31,22 @@ shinyUI(fluidPage(
         tabPanel(
           "Place", 
           helpText("Choose the **Place** by selecting from a _MarineRegion_ (MarineRegion.org served by mregions R package) or draw your own area of interest."),
-          selectInput(
-            "sel_ed_var",
-            "Variable",
-            c("")),
-          leafletOutput("map")),
+          column(
+            12, align = "center",
+            selectInput(
+              "sel_ed_var",
+              "Variable",
+              c(""))),
+          editModUI("map_edit")),
+          #leafletOutput("map")),
         tabPanel(
-          "Method", "Choose the available summarization method such as `mean`, `mean-min-max`, or `mean-sd`."),
+          "Method", 
+          helpText("Choose the available summarization method such as `mean`, 
+                   `mean-min-max`, or `mean-sd`."),
+          selectInput(
+            "sel_method",
+            "Method",
+            "mean-sd")),
         tabPanel(
           "Results", "Download the results. ."))
     ))
