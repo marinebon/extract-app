@@ -64,13 +64,15 @@ shinyServer(function(input, output, session) {
     
     id  <- get_ed_id()
     var <- input$sel_ed_var
+    
+    # id = "jplMURSST41mday"; var = "sst"
     wms <- ds_ed %>% 
       filter(Dataset.ID == id) %>% 
       pull(wms)
     
-    # id = "jplMURSST41mday"; var = "sst"
     leafletProxy(map_ns("map")) %>%
       removeTiles("ed_wms") %>% 
+      # leaflet() %>% 
       addWMSTiles(
         baseUrl = glue("{wms}?"),
         layerId = "ed_wms",
@@ -97,15 +99,26 @@ shinyServer(function(input, output, session) {
       filter(Dataset.ID == id) %>% 
       pull(url)
 
-    browser()
     dir_grd <- path(dir_extract, "grids", id)
     ed_info <- info(id, url)
+    
+    #browser()
+    # dir.create(dir_plys, showWarnings = F)
+    # test_ply_json <- path(dir_plys, "test.geojson")
+    # vals$plys %>% sf::write_sf(test_ply_json)
+    # vals <- list(
+    #   plys = sf::read_sf(test_ply_json))
+    # ply       = vals$plys
+    # ed_info   = ed_info
+    # ed_var    = var
+    # dir_tif   = dir_grd
     
     grds <- get_ed_grds(
       ply       = vals$plys, 
       ed_info   = ed_info, 
       ed_var    = var,
-      dir_tif   = dir_grd)
+      dir_tif   = dir_grd,
+      verbose   = T)
     
 
   })

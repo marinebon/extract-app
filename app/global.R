@@ -270,6 +270,8 @@ get_ed_grds <- function(
     r
   }
   
+  # verbose = T
+  
   tbl <- tibble(
     date = dates_get) %>%
     mutate(
