@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "test",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "X_leaflet_id": 378, "feature_type": "polygon" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -121.822325, 34.446146 ], [ -120.969393, 33.45957 ], [ -118.320048, 33.668743 ], [ -119.601804, 34.289079 ], [ -120.841189, 34.706111 ], [ -121.822325, 34.446146 ] ] ] } }
+]
+}

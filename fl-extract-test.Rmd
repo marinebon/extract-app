@@ -1,0 +1,68 @@
+---
+title: "fl-extract-test"
+author: "Ben Best"
+date: "1/31/2022"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+## TODO
+
+1. [ ] Make boxes from NW corners, save as GeoJSON
+1. [ ] Make polygons from lat/lon, save as GeoJSON
+1. [ ] Extract time series of average (+ other metrics: min/max/stdev/ci05/ci95) and station id over time
+1. [ ] Visualize series
+
+## Station Boxes
+
+Dan Otis: Here are the point locations for the FWC dashboard. These are the NW corners of those black boxes on the map. I have the offset to set the opposite corners at +/-0.075 degrees to the east and south of each of these points.
+
+```{r}
+librarian::shelf(
+  dplyr, DT, jsonlite, listviewer)
+
+d <- data.frame(
+  sta_ID = c('KW','SOM','MOL','MIA','PEV','PBI','SLI','SUG'),
+  nw_lat = c(24.507,24.660,25.054,25.768,26.111,26.776,27.193,24.567),
+  nw_lon = c(-81.808,-81.111,-80.409,-80.111,-80.078,-80.00,-80.125,-81.513))
+datatable(d)
+```
+
+## ROI Polygons
+
+Dan Otis: Here is a json file with three fields, ID, lat and lon. These are polygons.
+
+```{r}
+librarian::shelf(
+  dplyr, )
+
+roi_json <- "data/FK_ROI.json"
+j <- jsonlite::read_json(roi_json)
+
+jsonedit(j)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## ERDDAP
+
+Dan Otis: I'm not sure about the ERDDAP. Tylar will know. I think they are down as well.
+
+There are two sensors (MODA and VSNPP) and two main "product classes", OC and SST. From OC, we use chlor_a, Kd_490, Rrs_671 from VIIRS and ABI from MODIS. Then we use SSTN from VIIRS for SST. Five products total are extracted.
+
+The files you want are 7 day mean files. There is a "median" field for each parameter, which gets extracted from each image and put into a time series. From there, I calculate the climatology and anomaly and that all gets dropped into a .csv file w/unix time and passed to grafana. 
+
+If you don't want to do the climatology and anomaly calculation on the fly, there is also an "anomaly" field in the 7 day mean files and you could extract that to create an anomaly time series. Then you could back out the climatology.
+
+Tylar: The ERDDAP server is up now at http://131.247.136.200:8080/erddap
+I will have a real hostname for it in the future but for now we can just use this IP.
+
+The extracted time series data needs to push into the web service I have here: http://34.68.19.143:5000/
+In the past I have done that using curl in an airflow job (ref).
