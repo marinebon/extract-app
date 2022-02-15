@@ -7,6 +7,8 @@ output:
     toc: true
     toc_float: true
     code_folding: show
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -26,13 +28,41 @@ Dan Otis: Here are the point locations for the FWC dashboard. These are the NW c
 
 ```{r}
 librarian::shelf(
-  dplyr, DT, jsonlite, listviewer)
+  dplyr, DT, glue, here, jsonlite, listviewer, mapview, purrr, 
+  rerddap, sf)
 
-d <- data.frame(
-  sta_ID = c('KW','SOM','MOL','MIA','PEV','PBI','SLI','SUG'),
-  nw_lat = c(24.507,24.660,25.054,25.768,26.111,26.776,27.193,24.567),
-  nw_lon = c(-81.808,-81.111,-80.409,-80.111,-80.078,-80.00,-80.125,-81.513))
-datatable(d)
+sta_geo  <- here("data/fk_sta.geojson")
+
+if (!file.exists(sta_geo)){
+  delta <- 0.75
+  d_sta <- tibble(
+    sta_ID = c('KW','SOM','MOL','MIA','PEV','PBI','SLI','SUG'),
+    nw_lat = c(24.507,24.660,25.054,25.768,26.111,26.776,27.193,24.567),
+    nw_lon = c(-81.808,-81.111,-80.409,-80.111,-80.078,-80.00,-80.125,-81.513)) %>% 
+    mutate(
+      id     = glue("sta_{sta_ID}"),
+      se_lat = nw_lat - delta,
+      se_lon = nw_lon + delta) %>% 
+    mutate(
+      geom = pmap(., function(nw_lon, nw_lat, se_lon, se_lat, ...){
+        st_bbox(
+          st_union(
+            st_point(c(nw_lon, nw_lat)),
+            st_point(c(se_lon, se_lat)))) %>% 
+          st_as_sfc() %>% 
+          st_sf
+      }))
+  p_sta <- bind_rows(d_sta$geom) %>% 
+    st_set_crs(4326) %>% 
+    bind_cols(
+      d_sta %>% 
+        select(id))
+  
+  write_sf(p_sta, sta_geo)
+}
+p_sta <- read_sf(sta_geo)
+
+mapview(p_sta)
 ```
 
 ## ROI Polygons
@@ -41,15 +71,52 @@ Dan Otis: Here is a json file with three fields, ID, lat and lon. These are poly
 
 ```{r}
 librarian::shelf(
-  dplyr, )
+  dplyr)
 
-roi_json <- "data/FK_ROI.json"
-j <- jsonlite::read_json(roi_json)
+roi_json <- here("data/FK_ROI.json")
+roi_geo  <- here("data/fk_roi.geojson")
 
-jsonedit(j)
+if (!file.exists(roi_geo)){
+  j_roi <- jsonlite::read_json(roi_json)
+  
+  ids <- numeric()
+  plys <- list()
+  
+  d_roi <- tibble(
+    roi_ID = map(j_roi, "roiname") %>% unlist(),
+    lon = map(j_roi, "lon"),
+    lat = map(j_roi, "lat")) %>% 
+    mutate(
+      id   = glue("roi_{roi_ID}"),
+      geom = map2(
+        lon, lat, 
+        function(lon, lat){
+          st_polygon(
+            list(
+              matrix(
+                c(unlist(lon), unlist(lat)), ncol=2))) %>% 
+            st_sfc() %>% 
+            st_as_sf() }))
+  p_roi <- bind_rows(d_roi$geom) %>% 
+    st_set_crs(4326) %>% 
+    bind_cols(
+      d_roi %>% 
+        select(id))
+  write_sf(p_roi, roi_geo)
+}
+p_roi <- read_sf(roi_geo)
+
+mapview(p_roi)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Combined
+
+```{r}
+p_cmb <- bind_rows(p_sta, p_roi)
+mapview(p_cmb)
+
+st_bbox(p_cmb)
+```
 
 ## ERDDAP
 
@@ -66,3 +133,10 @@ I will have a real hostname for it in the future but for now we can just use thi
 
 The extracted time series data needs to push into the web service I have here: http://34.68.19.143:5000/
 In the past I have done that using curl in an airflow job (ref).
+
+```{r}
+
+
+
+```
+
